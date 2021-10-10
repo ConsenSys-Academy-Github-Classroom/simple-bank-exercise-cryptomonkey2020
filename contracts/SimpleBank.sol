@@ -33,7 +33,7 @@ contract SimpleBank {
     event LogEnrolled(address accountAdress);
 
     // Add 2 arguments for this event, an accountAddress and an amount
-    event LogDepositMade(address account ,uint amount);
+    event LogDepositMade(address accountAddress ,uint amount);
 
     // Create an event called LogWithdrawal
     // Hint: it should take 3 arguments: an accountAddress, withdrawAmount and a newBalance 
@@ -57,6 +57,7 @@ contract SimpleBank {
       // 1. A SPECIAL KEYWORD prevents function from editing state variables;
       //    allows function to run locally/off blockchain
       // 2. Get the balance of the sender of this transaction
+      return balances[msg.sender];
     }
 
     /// @notice Enroll a customer with the bank
@@ -70,30 +71,19 @@ contract SimpleBank {
     /// @notice Deposit ether into bank
     /// @return The balance of the user after the deposit is made
     function deposit() public payable returns (uint) {
-      // 1. Add the appropriate keyword so that this function can receive ether
-            // "payable"
-      // 2. Users should be enrolled before they can make deposits
-      require (enrolled[msg.sender] == true,"enroll first");
-
-      // 3. Add the amount to the user's balance. Hint: the amount can be
-      //    accessed from of the global variable `msg`
-      
-      //balances[msg.sender] += msg.value;
-       balances[msg.sender] = balances[msg.sender] + msg.value;
-
-      // 4. Emit the appropriate event associated with this function
-      emit LogDepositMade(msg.sender, msg.value);
-
-      // 5. return the balance of sndr of this transaction
-      return balances[msg.sender];
+     require (enrolled[msg.sender] == true,"enroll first");
+     balances[msg.sender] += msg.value;
+     emit LogDepositMade(msg.sender,msg.value);
+     return balances[msg.sender];
 
     }
+
 
     /// @notice Withdraw ether from bank
     /// @dev This does not return any excess ether sent to it
     /// @param withdrawAmount amount you want to withdraw
     /// @return The balance remaining for the user
-    function withdraw(uint withdrawAmount) public returns (uint) {
+    function withdraw(uint withdrawAmount) public payable returns (uint) {
       // If the sender's balance is at least the amount they want to withdraw,
       // Subtract the amount from the sender's balance, and try to send that amount of ether
       // to the user attempting to withdraw. 
